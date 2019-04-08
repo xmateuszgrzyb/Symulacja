@@ -2,20 +2,20 @@
 #ifndef ZADANIE_2_STOLIKCZTEROOSOBOWY_H_
 #define ZADANIE_2_STOLIKCZTEROOSOBOWY_H_
 
+#include "GrupaKlientow.h"
 
 #include <iostream>
-#include "GrupaKlientow.h"
+
 using namespace std;
 
 class StolikCzteroosobowy
 {
-private:
-	GrupaKlientow* aktualny_klient; // wskaznik na grupe klientow aktualnie zajmujaccyh stolik czteroosbowy
-
 public:
+	GrupaKlientow* aktualny_klient;				// wskaznik na grupe klientow aktualnie zajmujaccyh stolik czteroosbowy
 
-	StolikCzteroosobowy();
-	~StolikCzteroosobowy();
+
+	StolikCzteroosobowy();						//konstruktor
+	~StolikCzteroosobowy();						//destruktor
 };
 
 #endif  // ZADANIE_2_STOLIKCZTEROOSOBOWY_H_

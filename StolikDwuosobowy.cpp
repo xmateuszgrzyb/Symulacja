@@ -1,13 +1,15 @@
-#include <iostream>
 #include "StolikDwuosobowy.h"
+
+#include <iostream>
+
 using namespace std;
 
-StolikDwuosobowy::StolikDwuosobowy()
+StolikDwuosobowy::StolikDwuosobowy()					//konstruktor
 {
 
 }
 
-StolikDwuosobowy::~StolikDwuosobowy()
+StolikDwuosobowy::~StolikDwuosobowy()					//destruktor
 {
 
 }

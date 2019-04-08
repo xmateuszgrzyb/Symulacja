@@ -1,29 +1,31 @@
-#include <iostream>
 #include "KolejkaKierownik.h"
+
+#include <iostream>
+
 using namespace std;
 
-KolejkaKierownik::KolejkaKierownik()
+KolejkaKierownik::KolejkaKierownik()											//konstuktor
 {
 
 }
 
-KolejkaKierownik::~KolejkaKierownik()
+KolejkaKierownik::~KolejkaKierownik()											//destruktor
 {
 
 }
 
-void KolejkaKierownik::UmiescWKolejce(GrupaKlientow k)
+void KolejkaKierownik::UmiescWKolejce(GrupaKlientow k)							//funkcja umieszczajaca klientow do kolejki na sale						
 {
 	kolejka_kierownik.push(k);
 }
 
-void KolejkaKierownik::PokazRozmiarKolejki()
+void KolejkaKierownik::PokazRozmiarKolejki()									//funkcja pokazujaca ilosc grup w kolejce na sale
 {
 	cout << "Rozmiar kolejki do kierownika: " << size(kolejka_kierownik) << endl;
 }
 
 
-void KolejkaKierownik::PokazIdGrupy()
+void KolejkaKierownik::PokazIdGrupy()											//funkcja pokazujaca id grup czekajacych w kolejce na sale
 {
 	while (!kolejka_kierownik.empty()) 
 	{

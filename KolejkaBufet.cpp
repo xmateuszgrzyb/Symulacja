@@ -2,29 +2,29 @@
 #include "KolejkaBufet.h"
 using namespace std;
 
-KolejkaBufet::KolejkaBufet()
+KolejkaBufet::KolejkaBufet()																							//konstuktor
 {
 
 }
 
-KolejkaBufet::~KolejkaBufet()
+KolejkaBufet::~KolejkaBufet()																							//destruktor
 {
 
 }
 
-void KolejkaBufet::UmiescWKolejce(GrupaKlientow k)
+void KolejkaBufet::UmiescWKolejce(GrupaKlientow k)																		//funkcja wkladajaca klientow do kolejki do bufetu
 {
 	kolejka_bufet.push(k);
 }
 
 
-void KolejkaBufet::PokazRozmiarKolejki()
+void KolejkaBufet::PokazRozmiarKolejki()																				//funkcja pokazujaca ile grup czeka w kolejce
 {
 	cout << "Rozmiar kolejki do bufetu: " << size(kolejka_bufet) << " grup/y"<< endl;
 }
 
 
-void KolejkaBufet::PokazIdGrupy(KolejkaBufet k)
+void KolejkaBufet::PokazIdGrupy(KolejkaBufet k)																			//funkcja pokazujaca id grup czekajacych w kolejce
 {
 	while (!k.kolejka_bufet.empty())
 	{

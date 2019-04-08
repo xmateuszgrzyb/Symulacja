@@ -1,13 +1,15 @@
-#include <iostream>
 #include "StolikCzteroosobowy.h"
+
+#include <iostream>
+
 using namespace std;
 
-StolikCzteroosobowy::StolikCzteroosobowy()
+StolikCzteroosobowy::StolikCzteroosobowy()			//konstruktor
 {
 
 }
 
-StolikCzteroosobowy::~StolikCzteroosobowy()
+StolikCzteroosobowy::~StolikCzteroosobowy()			//destruktor
 {
 
 }

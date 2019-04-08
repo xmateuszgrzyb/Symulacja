@@ -12,11 +12,10 @@ using namespace std;
 
 class KolejkaKasy
 {
-private:
+public:
 	queue<GrupaKlientow> kolejka_kasy;		//kolejka przechowujaca wskazniki na klientow oczekujacych w kolejce do bufetu 
 	int liczba_osob_kolejka_kasy;			// liczba osob w kolejce do kas
 
-public:
 
 	KolejkaKasy();
 	~KolejkaKasy();
