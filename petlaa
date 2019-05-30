@@ -1,0 +1,464 @@
+
+#include <iostream>
+#include <cstdlib>
+#include <queue>
+#include <ctime>
+#include <random>
+#include <fstream>
+//#include <vld.h>
+
+#include "AddNewClientsGroup.h"
+#include "StartDrinkService.h"
+#include "StartBuffetService.h"
+#include "StartCashierService.h"
+#include "StartConsumption.h"
+#include "StartManagerService.h"
+#include "StartMealsService.h"
+#include "EndManagerService.h"
+#include "EndBuffetService.h"
+#include "EndCashierService.h"
+#include "EndConsumption.h"
+#include "EndDrinkService.h"
+#include "EndMealsService.h"
+#include "ChineseRestaurant.h"
+#include "Buffet.h"
+#include "ClientsGroup.h"
+#include "Cashier.h"
+#include "Waiter.h"
+#include "Manager.h"
+#include "BuffetQueue.h"
+#include "CashiersQueue.h"
+#include "ManagerQueue.h"
+#include "FourSeaterTable.h"
+#include "TwoSeaterTable.h"
+#include "ThreeSeaterTable.h"
+#include "Table.h"
+
+
+using namespace std;
+
+bool FindEarliest(const EventList& x, const EventList& y) {
+
+	return x.event_time_ < y.event_time_;
+
+}
+
+int main()
+{
+	srand(static_cast<unsigned int>(time(nullptr)));
+
+	default_random_engine generator1;
+	normal_distribution<double> normal_dist_new_clients_group(350.0, 100.0);		// N(mean, stddeviation)
+	normal_distribution<double> normal_dist_buffet(1900.0, 200.0);
+	exponential_distribution<double> exponential_dist_drinks(1/1100.0);
+	exponential_distribution<double> exponential_dist_meals(1/4000.0);
+	exponential_distribution<double> exponential_dist_consumption(1/1900.0);
+	exponential_distribution<double> exponential_dist_cashier(1/800.0);
+
+
+	AddNewClientsGroup add_new_clients_group;
+	ManagerQueue* manager_queue = new ManagerQueue;
+	CashiersQueue* cashiers_queue = new CashiersQueue;
+	StartManagerService start_manager_service;
+	EndManagerService* end_manager_service = new EndManagerService;
+	BuffetQueue* buffet_queue = new BuffetQueue;
+	Manager* manager = new Manager;
+	StartConsumption* start_consumption = new StartConsumption;
+	EndConsumption* end_consumption = new EndConsumption;
+	StartCashierService* start_cashier_service = new StartCashierService;
+	EndCashierService* end_cashier_service = new EndCashierService;
+	StartDrinkService* start_drink_service = new StartDrinkService;
+	EndDrinkService* end_drink_service = new EndDrinkService;
+	StartMealsService* start_meals_service = new StartMealsService;
+	EndMealsService* end_meals_service = new EndMealsService;
+	Buffet* buffet = new Buffet;
+	StartBuffetService* start_buffet_service = new StartBuffetService;
+	EndBuffetService* end_buffet_service = new EndBuffetService;
+	vector <Waiter*> waiters;
+	vector<TwoSeaterTable*> two_seater_tables;
+	vector<ThreeSeaterTable*> three_seater_tables;
+	vector<FourSeaterTable*> four_seater_tables;
+	vector<Table*> tables;
+	vector <Cashier*> cashiers;
+	vector <EventList>* event_list = new vector<EventList>;
+
+
+	bool event_trigger;
+
+	int id = 1;
+	int x_function;
+
+	waiters.reserve(7);
+	for (int i = 0; i < 7; i++)
+	{
+		waiters.push_back(new Waiter);
+	}
+
+	cashiers.reserve(4);
+	for (int i = 0; i < 4; i++)
+	{
+		cashiers.push_back(new Cashier);
+	}
+
+	tables.reserve(18);
+	for (int i = 0; i < 4; i++)
+	{
+		tables.push_back(new Table(2));
+	}
+
+	for (int i = 0; i < 10; i++)
+	{
+		tables.push_back(new Table(3));
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		tables.push_back(new Table(4));
+	}
+
+	double new_clients_group_time;
+	double drinks_service_time;
+	double meal_service_time;
+	double consumption_time;
+	double cashier_service_time;
+	double time_at_the_buffet;
+	vector <double> new_clients_group_time_vector;
+	vector <double> drinks_service_time_vector;
+	vector <double> meal_service_time_vector;
+	vector <double> consumption_time_vector;
+	vector <double> cashier_service_time_vector;
+	vector <double> time_at_the_buffet_vector;
+
+
+	double system_time = 1.0;
+	vector <double> waiting_time;
+	vector <double> from_manager_to_waiter_time;
+	vector<int> size_of_manager_queue;
+	vector<int> size_of_cashier_queue;
+	vector<int> all_customers;
+	vector<int> average_customers;
+
+	EventList event_list1;
+	event_list1.event_time_ = 1;
+	event_list1.function_ = 1;
+	event_list->push_back(event_list1);
+
+	while (system_time < 100000)
+	{
+		if (!event_list->empty()) 
+		{
+			sort(event_list->begin(), event_list->end(), FindEarliest);
+			system_time = event_list->at(0).event_time_;
+				
+			if (event_list->at(0).event_time_ <= system_time) 
+			{
+				x_function = event_list->at(0).function_;
+				switch (x_function) 
+				{
+				case 1:
+					new_clients_group_time = normal_dist_new_clients_group(generator1);
+					new_clients_group_time_vector.push_back(new_clients_group_time);
+					time_at_the_buffet = normal_dist_buffet(generator1);
+					drinks_service_time = abs(exponential_dist_drinks(generator1));
+					drinks_service_time_vector.push_back(drinks_service_time);
+					meal_service_time = abs(exponential_dist_meals(generator1));
+					consumption_time = abs(exponential_dist_consumption(generator1));
+					cashier_service_time = abs(exponential_dist_cashier(generator1));
+					//add_new_clients_group.execute(id, manager_queue, buffet_queue, event_list, system_time, new_clients_group_time,drinks_service_time,meal_service_time,consumption_time,cashier_service_time,time_at_the_buffet);	//zdarzenie czasowoe - pojawienie sie nowego klienta
+					add_new_clients_group.execute(id, manager_queue, buffet_queue, event_list, system_time, 144,450, 1000, 1900, 850, 3200);
+					id++;
+					size_of_manager_queue.push_back(static_cast<int>(manager_queue->manager_queue_.size()));
+					all_customers.push_back(1);
+					average_customers.push_back(all_customers.size());
+					break;
+					
+				case 2:
+					end_manager_service->execute(event_list->at(0).table_, manager, system_time); //zdarzenie czasowe - zakonczenie prowadzenia grupy przez managera
+					break;
+
+				case 3:
+					end_drink_service->execute(event_list->at(0).waiter_,system_time);		//zdarzenie czasowe - zakonczenie obslugi przez kelnera w kontekscie napojow
+					break;
+
+				case 4:
+					end_meals_service->execute(event_list->at(0).waiter_, system_time);  //zdarzenie czasowe - zakonczenie obslugi przez kelnera w kontekscie dan glownych
+					break;
+
+				case 5:
+					end_consumption->execute(event_list->at(0).table_, cashiers_queue, system_time);	//zdarzenie czasowe - zakonczenie obslugi przez kelnera w kontekscie dan glownych
+					break;
+
+				case 6:
+					for (int b = 0; b < static_cast<int> (buffet->seats_at_the_buffet_.size()); b++)
+					{
+						if (buffet->seats_at_the_buffet_.at(b) != nullptr && buffet->seats_at_the_buffet_.at(b)->time_at_the_buffet_ <= system_time)
+						{
+							end_buffet_service->execute(buffet, cashiers_queue, system_time, b);				//zdarzenie czasowe - zakonczenie przebywania przy bufecie
+						}
+					}
+					break;
+
+				case 7:
+					end_cashier_service->execute(event_list->at(0).cashier_, system_time);	//zdarzenie czasowe - zakonczenie obslugi przez kasjera
+					all_customers.pop_back();
+					average_customers.push_back(all_customers.size());
+					break;
+						
+				default:
+						break;
+				}
+			}
+
+		event_trigger = true;
+		}
+		
+		while (event_trigger)
+		{ 
+			event_trigger = false;
+			for (int t = 0; t < static_cast<int> (tables.size()); t++)
+			{
+				if (manager->busy_ == false && !manager_queue->manager_queue_.empty() && tables.at(t)->current_group_ == nullptr && manager_queue->manager_queue_.front()->group_number_ <= tables.at(t)->seats_number_)//zdarzenie warunkowe - poczatek oblsugi przez kierownika jesli kolejka nie jest pusta i kierownik nie jest zajety
+				{
+					if(manager_queue->manager_queue_.front()->group_number_ != tables.at(t)->seats_number_)							//jesli na przodzie kolejki jest grupa z inna liczebnoscia niz liczy krzesel dany stolik
+					{
+						for (int i = 0; i < static_cast<int> (manager_queue->manager_queue_.size()); i++)
+						{
+							if (manager_queue->manager_queue_[i]->group_number_ == tables.at(t)->seats_number_)						//to przegladamy cala kolejke i ustawiamy na jej przodzie najwieksza grupe (o takiej liczebnosci ile jest krzesel przy stoliku)
+							{																										
+								vector<ClientsGroup*> helper;
+								helper.push_back(manager_queue->manager_queue_[i]);
+								manager_queue->manager_queue_.erase(manager_queue->manager_queue_.begin() + i);
+								manager_queue->manager_queue_.insert(manager_queue->manager_queue_.begin(), helper.back());
+								helper.erase(helper.begin());
+								break;
+							}
+						}
+						
+						if(manager_queue->manager_queue_.front()->group_number_ != tables.at(t)->seats_number_)						//jesli nie udalo znalezc sie grupy o takiej samej liczebnosci jaka liczy dany stolik
+						{																											//to szukamy grupy o liczebnosci jeden mniejszej niz miejsc ma dany stolik
+							for (int i = 0; i < static_cast<int> (manager_queue->manager_queue_.size()); i++)
+							{
+								if (manager_queue->manager_queue_[i]->group_number_ == (tables.at(t)->seats_number_-1))
+								{
+									vector<ClientsGroup*> helper;
+									helper.push_back(manager_queue->manager_queue_[i]);
+									manager_queue->manager_queue_.erase(manager_queue->manager_queue_.begin() + i);
+									manager_queue->manager_queue_.insert(manager_queue->manager_queue_.begin(), helper.back());
+									helper.erase(helper.begin());
+									break;
+								}
+							}
+						}
+
+						if (manager_queue->manager_queue_.front()->group_number_ != tables.at(t)->seats_number_ || manager_queue->manager_queue_.front()->group_number_ != (tables.at(t)->seats_number_-1))
+						{																										//jesli nie udalo znalezc sie grupy o takiej samej liczebnosci jaka liczy dany stolik lub o jeden mniejszej																						
+							for (int i = 0; i < static_cast<int> (manager_queue->manager_queue_.size()); i++)					//to szukamy grupy o liczebnosci o dwie osoby mniejszej niz miejsc ma dany stolik
+							{
+								if (manager_queue->manager_queue_[i]->group_number_ == (tables.at(t)->seats_number_ -2))
+								{
+									vector<ClientsGroup*> helper;
+									helper.push_back(manager_queue->manager_queue_[i]);
+									manager_queue->manager_queue_.erase(manager_queue->manager_queue_.begin() + i);
+									manager_queue->manager_queue_.insert(manager_queue->manager_queue_.begin(), helper.back());
+									helper.erase(helper.begin());
+									break;
+								}
+							}
+						}
+
+						if (manager_queue->manager_queue_.front()->group_number_ != tables.at(t)->seats_number_ || manager_queue->manager_queue_.front()->group_number_ != (tables.at(t)->seats_number_ - 1) || manager_queue->manager_queue_.front()->group_number_ != (tables.at(t)->seats_number_ - 2))
+						{																										//jesli nie udalo znalezc sie grupy o takiej samej liczebnosci jaka liczy dany stolik lub o jeden mniejszej																						
+							for (int i = 0; i < static_cast<int> (manager_queue->manager_queue_.size()); i++)					//lub o dwie osoby mniejszej to szukamy grupy o liczebnosci o trzy osoby mniejszej niz miejsc ma dany stolik
+							{
+								if (manager_queue->manager_queue_[i]->group_number_ == (tables.at(t)->seats_number_ - 3))
+								{
+									vector<ClientsGroup*> helper;
+									helper.push_back(manager_queue->manager_queue_[i]);
+									manager_queue->manager_queue_.erase(manager_queue->manager_queue_.begin() + i);
+									manager_queue->manager_queue_.insert(manager_queue->manager_queue_.begin(), helper.back());
+									helper.erase(helper.begin());
+									break;
+								}
+							}
+						}
+					}
+					
+						cout << "Poczatek obslugi przez managera grupy o ID: " << manager_queue->manager_queue_.front()->group_id_ << " o czasie:" << system_time << endl;
+						waiting_time.push_back(system_time - manager_queue->manager_queue_.front()->coming_time_);
+						start_manager_service.execute(manager_queue, tables.at(t), manager, event_list, system_time); // zdarzenie warunkowe poczatek obslugi przez managera
+						event_trigger = true;
+				}
+
+				if (tables.at(t)->drinks_flag_)				//zdarzenie warunkowe - poczatek podawania napojow przez kelnera jesli stol ma flage - true i kelner nikogo nie obsluguje 
+				{																				
+					for (int w = 0; w < static_cast<int>(waiters.size()); w++) 
+					{	
+						if (waiters.at(w)->current_group_at_the_table_ == nullptr) 
+						{
+							cout << "Poczatek obslugi przez kelnera (napoje) grupy o ID: " << tables.at(t)->current_group_->group_id_ << " o czasie:" << system_time << endl;;
+							start_drink_service->execute(tables.at(t), waiters.at(w), event_list, system_time); //zdarzenie warunkowe - poczatek obslugi przez kelnera (napoje) 
+							from_manager_to_waiter_time.push_back(system_time - waiters.at(w)->current_group_at_the_table_->current_group_->end_manager_service_time_);
+							event_trigger = true;
+							break;
+						}
+					}
+				}
+
+				if (tables.at(t)->meals_flag_)			//zdarzenie warunkowe - poczatek podawania dan glownych przez kelnera jesli stol ma flage - true i kelner nikogo nie obsluguje 
+				{																				
+					for (int w = 0; w < static_cast<int>(waiters.size()); w++) 
+					{
+						if (waiters.at(w)->current_group_at_the_table_ == nullptr) 
+						{
+							cout << "Poczatek obslugi przez kelnera (danie glowne) grupy o ID: " << tables.at(t)->current_group_->group_id_ << " o czasie:" << system_time << endl;;
+							start_meals_service->execute(tables.at(t), waiters.at(w), event_list, system_time); 
+							event_trigger = true;
+							break;
+						}
+					}
+				}
+
+				if (tables.at(t)->start_consumption_)	//zdarzenie warunkowe - poczatek konsumpcji grupy klientow jesli flaga dotyczaca konsumpcji jest ustawiona na true 
+				{
+					cout << "Zaczyna jesc grupa o ID: " << tables.at(t)->current_group_->group_id_ << " o czasie:" << system_time << endl;;
+					start_consumption->execute(tables.at(t), event_list, system_time);
+					event_trigger = true;
+				}
+			}
+
+			if (!buffet_queue->buffet_queue_.empty() && ((buffet->max_people_ - buffet->taken_seats_) >= buffet_queue->buffet_queue_.front()->group_number_)) //zdarzenie warunkowe - poczatek obslugi w bufecie jesli kolejka nie jest pusta i ilosc miejsc jest dostepna dla grupy klientow
+			{
+				start_buffet_service->execute(buffet, buffet_queue, event_list, system_time); //zdarzenie warunkowe, poczatek obslugi w bufecie
+				cout << "Poczatek obslugi w bufecie grupy o ID:" << buffet->seats_at_the_buffet_.back()->group_id_ << " o czasie:" << system_time << endl;
+				event_trigger = true;
+			}
+
+			for (int c = 0; c < static_cast<int>(cashiers.size()); c++) 
+			{
+				if (!cashiers_queue->cashiers_queue_.empty() && cashiers.at(c)->current_group_ == nullptr)	//zdarzenie warunkowe - poczatek obslugi przez kasjera, jesli kolejka nie jest pusta i kasjer nikogo nie obsluguje
+				{ 
+					cout << "Obsluga przez kasjera grupy o ID: " << cashiers_queue->cashiers_queue_.front()->group_id_ << " o czasie:" << system_time << endl;;
+					start_cashier_service->execute(cashiers.at(c), cashiers_queue, event_list, system_time);
+					event_trigger = true;
+					size_of_cashier_queue.push_back(static_cast<int>(cashiers_queue->cashiers_queue_.size()));
+				}
+			}
+		}
+		event_list->erase(event_list->begin());		//kasowanie komunikatu o zdarzeniu czasowym jesli wszystkie zdarzenia warunkowe zostaly wykonany
+	}
+
+double waiting = 0.0;
+double waiting2= 0.0;
+int size1 = 0;
+int size2 = 0;
+
+fstream handler;
+handler.open("obliczenia.txt", ios::out | ios::trunc);
+for (int i = 0; i<waiting_time.size(); i++)
+{
+	if(handler.good())
+	{
+		handler << waiting_time.at(i) << endl;
+	}
+	waiting = waiting + waiting_time.at(i);
+}
+handler.close();
+
+double waiting_mean= waiting / waiting_time.size();
+cout << endl << "Sredni czas oczekiwania na stolik wynosi: "<< waiting_mean << endl;
+
+
+fstream handler2;
+handler2.open("obliczenia2.txt", ios::out | ios::trunc);
+for (int i = 0; i < from_manager_to_waiter_time.size(); i++)
+{
+	if (handler2.good())
+	{
+		handler2 << from_manager_to_waiter_time.at(i) << endl;
+	}
+	waiting2 = waiting2 + from_manager_to_waiter_time.at(i);
+}
+handler2.close();
+
+double waiting2_mean = waiting2 / from_manager_to_waiter_time.size();
+cout << "Sredni czas oczekiwania na kelnera wynosi: " << waiting2_mean << endl;
+
+if(!size_of_manager_queue.empty())
+{
+	fstream handler3;
+	handler3.open("obliczenia3.txt", ios::out | ios::trunc);
+	for (int i = 0; i < size_of_manager_queue.size(); i++)
+	{
+		if (handler3.good())
+		{
+			handler3 << size_of_manager_queue.at(i) << endl;
+		}
+		size1 = size1 + size_of_manager_queue.at(i);
+	}
+	handler3.close();
+
+	int size_of_manager_queue_mean = size1 / size_of_manager_queue.size();
+	cout << endl << "Srednia dlugosc kolejki do managera wynosi: " << size_of_manager_queue_mean << endl;
+}
+
+if (!size_of_cashier_queue.empty())
+{
+	fstream handler4;
+	handler4.open("obliczenia4.txt", ios::out | ios::trunc);
+	for (int i = 0; i < static_cast<int>(size_of_cashier_queue.size()); i++)
+	{
+		if (handler4.good())
+		{
+			handler4 << size_of_cashier_queue.at(i) << endl;
+		}
+		size2 = size2 + size_of_cashier_queue.at(i);
+	}
+	handler4.close();
+
+	int size_of_cashier_queue_mean = size2 / size_of_cashier_queue.size();
+	cout << "Srednia dlugosc kolejki do kasjerow wynosi: " << size_of_cashier_queue_mean << endl;
+}
+
+if (!new_clients_group_time_vector.empty())
+{
+	fstream handler5;
+	handler5.open("obliczenia5.txt", ios::out | ios::trunc);
+	for (int i = 0; i < static_cast<int>(size_of_cashier_queue.size()); i++)
+	{
+		if (handler5.good())
+		{
+			handler5 << new_clients_group_time_vector.at(i) << endl;
+		}
+	}
+	handler5.close();
+}
+
+
+if (!drinks_service_time_vector.empty())
+{
+	fstream handler6;
+	handler6.open("obliczenia6.txt", ios::out | ios::trunc);
+	for (int i = 0; i < static_cast<int>(size_of_cashier_queue.size()); i++)
+	{
+		if (handler6.good())
+		{
+			handler6 << drinks_service_time_vector.at(i) << endl;
+		}
+	}
+	handler6.close();
+}
+
+
+fstream handler7;
+handler7.open("obliczenia7.txt", ios::out | ios::trunc);
+for (int i = 0; i < waiting_time.size(); i++)
+{
+	if (handler7.good())
+	{
+		handler7 << average_customers.at(i) << endl;
+	}
+}
+handler7.close();
+system("pause");
+return 0;
+}
